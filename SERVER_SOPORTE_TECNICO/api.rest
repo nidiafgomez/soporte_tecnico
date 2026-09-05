@@ -1,0 +1,92 @@
+### Login
+POST http://localhost:8010/login
+Content-Type: application/json
+
+{
+  "email": "ana@correo.com",
+  "password": "12345"
+}
+
+
+### Login
+POST http://localhost:8010/login
+Content-Type: application/json
+
+{
+  "email": "nfernadagomez@gmail.com",
+  "password": "12345"
+}
+
+### Registrar un usuario
+POST http://localhost:8010/registro
+Content-Type: application/json
+
+{
+  "nombres": "Ana",
+  "apellidos": "Lopez",
+  "email": "ana@correo.com",
+  "password": "12345",
+  "rol_idrol": 1
+}
+
+### Registrar usuario con mi correo real
+POST http://localhost:8010/registro
+Content-Type: application/json
+
+{
+  "nombres": "Prueba",
+  "apellidos": "Correo",
+  "email": "nfernadagomez@gmail.com",
+  "password": "12345",
+  "rol_idrol": 1
+}
+
+
+
+### Crear solicitud (ruta protegida)
+POST http://localhost:8010/solicitudes
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwianRpIjoiMjU3ODg1MWQtMzJkOC00YTRlLWI2ZWUtYWUwM2U0OGQxOGNkIiwiZXhwIjoxNzg3NjExNTAxfQ.k7JNY4TL8JSkhhTq76FCuobYU5RP0MPv0JlKpRkOdP8
+
+{
+  "asunto": "PC no enciende",
+  "descripcion": "Mi computadora no enciende desde ayer",
+  "prioridad": "Alta"
+}
+
+
+### Ver mis solicitudes
+GET http://localhost:8010/solicitudes/mis-solicitudes
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwianRpIjoiMTRjMWFlNTUtZTE1Mi00OTAyLTg5MDAtZmM5MmE5ZWVkMTEzIiwiZXhwIjoxNzg3NjExMzUxfQ.WuF74QVdQoe42vrU40BrkMvjsCHN5y0GUnu5FtcZLJY
+
+
+### Ver todas las solicitudes
+GET http://localhost:8010/solicitudes
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwianRpIjoiMTRjMWFlNTUtZTE1Mi00OTAyLTg5MDAtZmM5MmE5ZWVkMTEzIiwiZXhwIjoxNzg3NjExMzUxfQ.WuF74QVdQoe42vrU40BrkMvjsCHN5y0GUnu5FtcZLJY
+
+### Cambiar estado de una solicitud
+PUT http://localhost:8010/solicitudes/1/estado
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwianRpIjoiMTRjMWFlNTUtZTE1Mi00OTAyLTg5MDAtZmM5MmE5ZWVkMTEzIiwiZXhwIjoxNzg3NjExMzUxfQ.WuF74QVdQoe42vrU40BrkMvjsCHN5y0GUnu5FtcZLJY
+
+{
+  "estado": "En proceso"
+}
+
+
+### Asignar tecnico a una solicitud
+PUT http://localhost:8010/solicitudes/1/asignar
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwianRpIjoiMTRjMWFlNTUtZTE1Mi00OTAyLTg5MDAtZmM5MmE5ZWVkMTEzIiwiZXhwIjoxNzg3NjExMzUxfQ.WuF74QVdQoe42vrU40BrkMvjsCHN5y0GUnu5FtcZLJY
+
+
+
+### Crear solicitud con correo real
+POST http://localhost:8010/solicitudes
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzb3BvcnRlX3RlY25pY29fc2VydmVyIiwic3ViIjoiNiIsImp0aSI6IjZiMWIyZDVkLWI1OGEtNDNiNy1iYzE0LTJlZmE5ZDVkN2JkMSIsImV4cCI6MTc4NzY4MzcyMn0.UwuKNJ_acjj9PfVOgQXbF5SGNQFX_P2xi4DLZsxGPUo
+
+{
+  "asunto": "Prueba de correo",
+  "descripcion": "Verificando que llegue la notificacion",
+  "prioridad": "Media"
+}

@@ -1,0 +1,329 @@
+---
+import "./login.css";
+---
+
+<div class="login-wrapper">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+    <div class="grid-overlay"></div>
+
+    <div class="login-card-container">
+        <div class="login-card">
+            <div class="brand-header text-center mb-4">
+                <div class="logo-badge mb-3">
+                    <div class="logo-icon-wrapper">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                </div>
+                <h2 class="auth-title">Bienvenido</h2>
+                <p class="auth-subtitle">
+                    Ingresa tus credenciales para acceder al sistema
+                </p>
+            </div>
+
+            <div
+                id="formAlert"
+                class="alert-custom alert-custom-danger d-none"
+                role="alert"
+            >
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span id="formAlertMessage"
+                    >Por favor corrige los errores antes de continuar.</span
+                >
+            </div>
+
+            <form id="loginForm" class="login-form" novalidate>
+                <div class="input-group-custom mb-3">
+                    <label for="emailInput" class="form-label-custom"
+                        >Correo electrónico</label
+                    >
+                    <div class="input-field-wrapper">
+                        <i class="bi bi-envelope field-icon"></i>
+                        <input
+                            type="text"
+                            id="emailInput"
+                            class="form-control-custom"
+                            placeholder="nombre@ejemplo.com"
+                            required
+                            autocomplete="email"
+                        />
+                    </div>
+                    <div class="error-feedback" id="emailError"></div>
+                </div>
+
+                <div class="input-group-custom mb-3">
+                    <div
+                        class="d-flex justify-content-between align-items-center mb-1"
+                    >
+                        <label
+                            for="passwordInput"
+                            class="form-label-custom mb-0">Contraseña</label
+                        >
+                    </div>
+                    <div class="input-field-wrapper">
+                        <i class="bi bi-key field-icon"></i>
+                        <input
+                            type="password"
+                            id="passwordInput"
+                            class="form-control-custom"
+                            placeholder="••••••••••••"
+                            required
+                            autocomplete="current-password"
+                        />
+                        <button
+                            type="button"
+                            class="toggle-password-btn"
+                            id="togglePassword"
+                            aria-label="Mostrar u ocultar contraseña"
+                        >
+                            <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                        </button>
+                    </div>
+                    <div class="error-feedback" id="passwordError"></div>
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn-submit-gradient"
+                    id="submitBtn"
+                >
+                    <span class="btn-text">Iniciar Sesión</span>
+                    <i class="bi bi-arrow-right btn-icon"></i>
+                    <div
+                        class="btn-spinner spinner-border spinner-border-sm text-light d-none"
+                        role="status"
+                    >
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </button>
+            </form>
+
+            <div class="login-card-footer mt-4 pt-3 text-center">
+                <div class="security-badge mb-2">
+                    <i class="bi bi-patch-check-fill me-1"></i>
+                    <span>Conexión segura</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const togglePasswordBtn = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById(
+        "passwordInput",
+    ) as HTMLInputElement | null;
+    const togglePasswordIcon = document.getElementById("togglePasswordIcon");
+    const emailInput = document.getElementById(
+        "emailInput",
+    ) as HTMLInputElement | null;
+    const emailError = document.getElementById("emailError");
+    const passwordError = document.getElementById("passwordError");
+    const formAlert = document.getElementById("formAlert");
+    const formAlertMessage = document.getElementById("formAlertMessage");
+    const loginForm = document.getElementById(
+        "loginForm",
+    ) as HTMLFormElement | null;
+    const submitBtn = document.getElementById(
+        "submitBtn",
+    ) as HTMLButtonElement | null;
+
+    if (togglePasswordBtn && passwordInput && togglePasswordIcon) {
+        togglePasswordBtn.addEventListener("click", () => {
+            const isPassword = passwordInput.type === "password";
+            passwordInput.type = isPassword ? "text" : "password";
+            togglePasswordIcon.classList.toggle("bi-eye", !isPassword);
+            togglePasswordIcon.classList.toggle("bi-eye-slash", isPassword);
+        });
+    }
+
+    function validateEmail(val: string): { isValid: boolean; message: string } {
+        const value = val.trim();
+        if (!value) {
+            return {
+                isValid: false,
+                message: "El correo electrónico es requerido.",
+            };
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+            return {
+                isValid: false,
+                message: "Ingresa un correo electrónico válido.",
+            };
+        }
+        return { isValid: true, message: "" };
+    }
+
+    function validatePassword(val: string): {
+        isValid: boolean;
+        message: string;
+    } {
+        const value = val.trim();
+        if (!value) {
+            return { isValid: false, message: "La contraseña es requerida." };
+        }
+        if (value.length < 4) {
+            return {
+                isValid: false,
+                message: "La contraseña debe tener al menos 4 caracteres.",
+            };
+        }
+        return { isValid: true, message: "" };
+    }
+
+    function setFieldState(
+        inputEl: HTMLInputElement | null,
+        errorEl: HTMLElement | null,
+        validation: { isValid: boolean; message: string },
+    ) {
+        if (!inputEl || !errorEl) return;
+        if (!validation.isValid) {
+            inputEl.classList.add("is-invalid");
+            inputEl.classList.remove("is-valid");
+            errorEl.innerHTML = `<i class="bi bi-exclamation-circle-fill"></i> <span>${validation.message}</span>`;
+        } else {
+            inputEl.classList.remove("is-invalid");
+            inputEl.classList.add("is-valid");
+            errorEl.innerHTML = "";
+        }
+    }
+
+    if (emailInput && emailError) {
+        emailInput.addEventListener("input", () => {
+            if (emailInput.classList.contains("is-invalid")) {
+                setFieldState(
+                    emailInput,
+                    emailError,
+                    validateEmail(emailInput.value),
+                );
+            }
+        });
+        emailInput.addEventListener("blur", () => {
+            setFieldState(
+                emailInput,
+                emailError,
+                validateEmail(emailInput.value),
+            );
+        });
+    }
+
+    if (passwordInput && passwordError) {
+        passwordInput.addEventListener("input", () => {
+            if (passwordInput.classList.contains("is-invalid")) {
+                setFieldState(
+                    passwordInput,
+                    passwordError,
+                    validatePassword(passwordInput.value),
+                );
+            }
+        });
+        passwordInput.addEventListener("blur", () => {
+            setFieldState(
+                passwordInput,
+                passwordError,
+                validatePassword(passwordInput.value),
+            );
+        });
+    }
+
+    if (
+        loginForm &&
+        submitBtn &&
+        emailInput &&
+        passwordInput &&
+        emailError &&
+        passwordError
+    ) {
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const emailValidation = validateEmail(emailInput.value);
+            const passwordValidation = validatePassword(passwordInput.value);
+
+            setFieldState(emailInput, emailError, emailValidation);
+            setFieldState(passwordInput, passwordError, passwordValidation);
+
+            if (!emailValidation.isValid || !passwordValidation.isValid) {
+                if (formAlert && formAlertMessage) {
+                    formAlertMessage.textContent =
+                        "Por favor completa todos los campos requeridos correctamente.";
+                    formAlert.className =
+                        "alert-custom alert-custom-danger d-flex";
+                }
+                return;
+            }
+
+            if (formAlert) {
+                formAlert.classList.add("d-none");
+            }
+
+            const btnText = submitBtn.querySelector(".btn-text");
+            const btnIcon = submitBtn.querySelector(".btn-icon");
+            const btnSpinner = submitBtn.querySelector(".btn-spinner");
+
+            if (btnText && btnIcon && btnSpinner) {
+                btnText.textContent = "Autenticando...";
+                btnIcon.classList.add("d-none");
+                btnSpinner.classList.remove("d-none");
+                submitBtn.disabled = true;
+
+                try {
+                    const response = await fetch("/api/login", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            email: emailInput.value,
+                            password: passwordInput.value,
+                        }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        btnText.textContent = "¡Bienvenido!";
+                        btnSpinner.classList.add("d-none");
+                        btnIcon.className = "bi bi-check-lg btn-icon";
+                        btnIcon.classList.remove("d-none");
+
+                        if (formAlert && formAlertMessage) {
+                            formAlertMessage.textContent =
+                                "Inicio de sesión exitoso. Redirigiendo...";
+                            formAlert.className =
+                                "alert-custom alert-custom-success d-flex";
+                        }
+
+                        setTimeout(() => {
+                            if (data.rol === "tecnico") {
+                                window.location.href = "/tecnico";
+                            } else {
+                                window.location.href = "/usuarios";
+                            }
+                        }, 1200);
+                    } else {
+                        throw new Error(
+                            data.message || "Error en el inicio de sesión",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error al realizar la petición:", error);
+                    btnText.textContent = "Iniciar Sesión";
+                    btnSpinner.classList.add("d-none");
+                    btnIcon.className = "bi bi-arrow-right btn-icon";
+                    btnIcon.classList.remove("d-none");
+                    submitBtn.disabled = false;
+
+                    if (formAlert && formAlertMessage) {
+                        formAlertMessage.textContent =
+                            error instanceof Error
+                                ? error.message
+                                : "Error al conectar con el servidor";
+                        formAlert.className =
+                            "alert-custom alert-custom-danger d-flex";
+                    }
+                }
+            }
+        });
+    }
+</script>

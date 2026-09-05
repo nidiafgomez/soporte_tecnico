@@ -1,0 +1,114 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Login from '../components/login/login.astro';
+---
+
+<Layout title="Iniciar sesion">
+    <Login />
+
+    <div class="switch-auth-wrapper">
+        <button id="showRegisterBtn" class="switch-auth-btn">
+            ¿No tienes cuenta? Registrate aqui
+        </button>
+    </div>
+
+    <div id="registerOverlay" class="register-overlay d-none">
+        <div class="register-card">
+            <button id="closeRegisterBtn" class="close-register-btn">&times;</button>
+            <h4 class="mb-3 text-white">Crear cuenta</h4>
+            <div id="regAlert" class="alert d-none"></div>
+            <form id="regForm">
+                <input type="text" id="regNombres" class="form-control-custom mb-2" placeholder="Nombres" required />
+                <input type="text" id="regApellidos" class="form-control-custom mb-2" placeholder="Apellidos" required />
+                <input type="email" id="regEmail" class="form-control-custom mb-2" placeholder="Correo" required />
+                <input type="password" id="regPassword" class="form-control-custom mb-2" placeholder="Contrasena" required />
+                <select id="regRol" class="form-control-custom mb-3">
+                    <option value="1">Usuario</option>
+                    <option value="2">Tecnico</option>
+                </select>
+                <button type="submit" class="btn-submit-gradient w-100">Crear cuenta</button>
+            </form>
+        </div>
+    </div>
+</Layout>
+
+<style>
+    .switch-auth-wrapper {
+        text-align: center;
+        margin-top: -20px;
+        position: relative;
+        z-index: 10;
+    }
+    .switch-auth-btn {
+        background: none;
+        border: none;
+        color: #a5b4fc;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    .register-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.85);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+    }
+    .register-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 32px;
+        width: 100%;
+        max-width: 380px;
+        position: relative;
+    }
+    .close-register-btn {
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        background: none;
+        border: none;
+        color: rgba(255,255,255,0.6);
+        font-size: 24px;
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    const showBtn = document.getElementById('showRegisterBtn');
+    const closeBtn = document.getElementById('closeRegisterBtn');
+    const overlay = document.getElementById('registerOverlay');
+
+    showBtn?.addEventListener('click', () => overlay?.classList.remove('d-none'));
+    closeBtn?.addEventListener('click', () => overlay?.classList.add('d-none'));
+
+    const regForm = document.getElementById('regForm') as HTMLFormElement | null;
+    const regAlert = document.getElementById('regAlert');
+
+    if (regForm && regAlert) {
+        regForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nombres = (document.getElementById('regNombres') as HTMLInputElement).value;
+            const apellidos = (document.getElementById('regApellidos') as HTMLInputElement).value;
+            const email = (document.getElementById('regEmail') as HTMLInputElement).value;
+            const password = (document.getElementById('regPassword') as HTMLInputElement).value;
+            const rol_idrol = Number((document.getElementById('regRol') as HTMLSelectElement).value);
+
+            const res = await fetch('/api/registro', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombres, apellidos, email, password, rol_idrol })
+            });
+
+            const data = await res.json();
+
+            regAlert.textContent = data.message;
+            regAlert.className = data.success ? 'alert alert-success' : 'alert alert-danger';
+            if (data.success) regForm.reset();
+        });
+    }
+</script>

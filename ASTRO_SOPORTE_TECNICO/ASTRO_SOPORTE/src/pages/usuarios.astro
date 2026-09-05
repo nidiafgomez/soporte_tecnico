@@ -1,0 +1,155 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Panel de usuario">
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Sistema de soporte tecnico</h1>
+            <button id="logoutBtn" class="btn btn-outline-danger">Cerrar sesion</button>
+        </div>
+
+        <div class="card p-4 mb-4">
+            <h4 class="mb-3">Nueva solicitud</h4>
+
+            <div id="formAlert" class="alert d-none" role="alert"></div>
+
+            <form id="solicitudForm">
+                <div class="mb-3">
+                    <label for="asunto" class="form-label">Asunto</label>
+                    <input type="text" id="asunto" class="form-control" required />
+                </div>
+
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label">Descripcion</label>
+                    <textarea id="descripcion" class="form-control" rows="3" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="prioridad" class="form-label">Prioridad</label>
+                    <select id="prioridad" class="form-select">
+                        <option value="Baja">Baja</option>
+                        <option value="Media" selected>Media</option>
+                        <option value="Alta">Alta</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Crear solicitud</button>
+            </form>
+        </div>
+
+        <div id="archivoCard" class="card p-4 mb-4 d-none">
+            <h4 class="mb-3">Adjuntar archivo a la solicitud</h4>
+            <div id="archivoAlert" class="alert d-none" role="alert"></div>
+
+            <form id="archivoForm">
+                <div class="mb-3">
+                    <input type="file" id="archivoInput" class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-secondary">Subir archivo</button>
+            </form>
+        </div>
+    </div>
+</Layout>
+
+<script>
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/';
+        });
+    }
+
+    let solicitudIdCreada: number | null = null;
+
+    const solicitudForm = document.getElementById('solicitudForm') as HTMLFormElement | null;
+    const formAlert = document.getElementById('formAlert');
+    const archivoCard = document.getElementById('archivoCard');
+
+    if (solicitudForm && formAlert && archivoCard) {
+        solicitudForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const asunto = (document.getElementById('asunto') as HTMLInputElement).value;
+            const descripcion = (document.getElementById('descripcion') as HTMLTextAreaElement).value;
+            const prioridad = (document.getElementById('prioridad') as HTMLSelectElement).value;
+
+            try {
+                const response = await fetch('/api/solicitudes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ asunto, descripcion, prioridad }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    formAlert.textContent = `Solicitud #${data.id} creada con exito`;
+                    formAlert.className = 'alert alert-success';
+                    solicitudForm.reset();
+
+                    solicitudIdCreada = data.id;
+                    archivoCard.classList.remove('d-none');
+                } else {
+                    formAlert.textContent = data.message || 'Error al crear la solicitud';
+                    formAlert.className = 'alert alert-danger';
+                }
+
+            } catch (error) {
+                formAlert.textContent = 'Error al conectar con el servidor';
+                formAlert.className = 'alert alert-danger';
+            }
+        });
+    }
+
+    const archivoForm = document.getElementById('archivoForm') as HTMLFormElement | null;
+    const archivoAlert = document.getElementById('archivoAlert');
+    const archivoInput = document.getElementById('archivoInput') as HTMLInputElement | null;
+
+    if (archivoForm && archivoAlert && archivoInput) {
+        archivoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!solicitudIdCreada) {
+                archivoAlert.textContent = 'Primero debes crear una solicitud';
+                archivoAlert.className = 'alert alert-danger';
+                return;
+            }
+
+            const archivo = archivoInput.files?.[0];
+
+            if (!archivo) {
+                archivoAlert.textContent = 'Selecciona un archivo primero';
+                archivoAlert.className = 'alert alert-danger';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', archivo);
+
+            try {
+                const response = await fetch(`/api/archivos?solicitudId=${solicitudIdCreada}`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    archivoAlert.textContent = 'Archivo subido con exito';
+                    archivoAlert.className = 'alert alert-success';
+                    archivoForm.reset();
+                } else {
+                    archivoAlert.textContent = data.message || 'Error al subir el archivo';
+                    archivoAlert.className = 'alert alert-danger';
+                }
+
+            } catch (error) {
+                archivoAlert.textContent = 'Error al conectar con el servidor';
+                archivoAlert.className = 'alert alert-danger';
+            }
+        });
+    }
+</script>
